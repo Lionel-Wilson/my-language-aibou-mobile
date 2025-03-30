@@ -10,8 +10,9 @@ import {
   Modal,
   FlatList,
   Clipboard,
+  Dimensions,
 } from 'react-native';
-import { X, Search, Copy, Check } from 'lucide-react-native';
+import { X, Search, Copy, Check, ChevronDown } from 'lucide-react-native';
 import Markdown from 'react-native-markdown-display';
 import { useLanguage } from '@/hooks/useLanguage';
 import { endpoints } from '@/utils/api';
@@ -26,6 +27,10 @@ const LANGUAGES = [
   { label: 'Chinese', value: 'Chinese' },
 ];
 
+const { height, width } = Dimensions.get('window');
+
+const SECTION_HEIGHT = Math.min(height * 0.5, 400);
+
 export default function WordDictionary() {
   const { language, setLanguage, isLoading } = useLanguage();
   const [word, setWord] = useState('');
@@ -38,8 +43,29 @@ export default function WordDictionary() {
   const [searchQuery, setSearchQuery] = useState('');
   const [copied, setCopied] = useState(false);
 
+  const [collapsedSections, setCollapsedSections] = useState({
+    definition: false,
+    synonyms: false,
+    history: false,
+  });
+
+  const toggleSection = (section) => {
+    setCollapsedSections(prev => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
+
+  const clearAll = () => {
+    setWord('');
+    setDefinition('');
+    setSynonyms('');
+    setHistory('');
+    setError('');
+  };
+
   const filteredLanguages = LANGUAGES.filter((lang) =>
-    lang.label.toLowerCase().includes(searchQuery.toLowerCase())
+      lang.label.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const validateWord = (text: string) => {
@@ -69,33 +95,27 @@ export default function WordDictionary() {
     setLoading(true);
 
     try {
-      const [definitionResponse, synonymsResponse,historyResponse] = await Promise.all([
-        fetch(
-          endpoints.wordDefinition,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              word,
-              nativeLanguage: language,
-            }),
-          }
-        ),
-        fetch(
-          endpoints.wordSynonyms,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              word,
-              nativeLanguage: language,
-            }),
-          }
-        ),
+      const [definitionResponse, synonymsResponse, historyResponse] = await Promise.all([
+        fetch(endpoints.wordDefinition, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            word,
+            nativeLanguage: language,
+          }),
+        }),
+        fetch(endpoints.wordSynonyms, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            word,
+            nativeLanguage: language,
+          }),
+        }),
         fetch(endpoints.wordHistory, {
           method: 'POST',
           headers: {
@@ -144,161 +164,248 @@ export default function WordDictionary() {
   }, [definition, synonyms, history]);
 
   const renderLanguageItem = ({ item }: { item: typeof LANGUAGES[0] }) => (
-    <TouchableOpacity
-      style={styles.languageItem}
-      onPress={() => {
-        setLanguage(item.value);
-        setShowLanguageModal(false);
-        setSearchQuery('');
-      }}>
-      <Text
-        style={[
-          styles.languageText,
-          language === item.value && styles.selectedLanguageText,
-        ]}>
-        {item.label}
-      </Text>
-      {language === item.value && (
-        <View style={styles.selectedIndicator} />
-      )}
-    </TouchableOpacity>
+      <TouchableOpacity
+          style={styles.languageItem}
+          onPress={() => {
+            setLanguage(item.value);
+            setShowLanguageModal(false);
+            setSearchQuery('');
+          }}>
+        <Text
+            style={[
+              styles.languageText,
+              language === item.value && styles.selectedLanguageText,
+            ]}>
+          {item.label}
+        </Text>
+        {language === item.value && (
+            <View style={styles.selectedIndicator} />
+        )}
+      </TouchableOpacity>
   );
 
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0069ff" />
-      </View>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0069ff" />
+        </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.label}>Your Native Language</Text>
-        <TouchableOpacity
-          style={styles.languageSelector}
-          onPress={() => setShowLanguageModal(true)}>
-          <Text style={styles.selectedLanguage}>{language}</Text>
-        </TouchableOpacity>
+      <ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}>
+        <View style={styles.content}>
+          <Text style={styles.label}>Your Native Language</Text>
+          <TouchableOpacity
+              style={styles.languageSelector}
+              onPress={() => setShowLanguageModal(true)}>
+            <Text style={styles.selectedLanguage}>{language}</Text>
+          </TouchableOpacity>
 
-        <Text style={styles.label}>Enter a Word</Text>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            value={word}
-            onChangeText={setWord}
-            placeholder="Enter a word to look up"
-            placeholderTextColor="#8896ab"
-            maxLength={30}
-          />
-          {word.length > 0 && (
-            <TouchableOpacity
-              style={styles.clearButton}
-              onPress={() => setWord('')}>
-              <X size={20} color="#394e6a" />
-            </TouchableOpacity>
-          )}
-        </View>
-
-        {error ? <Text style={styles.error}>{error}</Text> : null}
-
-        <TouchableOpacity
-          style={styles.button}
-          onPress={lookupWord}
-          disabled={loading}>
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>Look Up Word</Text>
-          )}
-        </TouchableOpacity>
-
-        {definition || synonyms ? (
-          <View style={styles.resultsContainer}>
-            <View style={styles.resultsHeader}>
-              <Text style={styles.resultsTitle}>Results</Text>
-              <TouchableOpacity style={styles.copyButton} onPress={copyToClipboard}>
-                {copied ? (
-                  <Check size={20} color="#0069ff" />
-                ) : (
-                  <Copy size={20} color="#394e6a" />
-                )}
-              </TouchableOpacity>
-            </View>
-            {definition ? (
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Definition</Text>
-                <Markdown style={markdownStyles}>{definition}</Markdown>
-              </View>
-            ) : null}
-
-            {synonyms ? (
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Synonyms</Text>
-                <Markdown style={markdownStyles}>{synonyms}</Markdown>
-              </View>
-            ) : null}
-
-            {history ? (
-                <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Word History</Text>
-                  <Markdown style={markdownStyles}>{history}</Markdown>
-                </View>
-            ) : null}
-          </View>
-        ) : null}
-
-        <Modal
-          visible={showLanguageModal}
-          animationType="slide"
-          transparent={true}
-          onRequestClose={() => {
-            setShowLanguageModal(false);
-            setSearchQuery('');
-          }}>
-          <View style={styles.modalContainer}>
-            <View style={[styles.modalContent, { height: '70%' }]}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Select Language</Text>
+          <Text style={styles.label}>Enter a Word</Text>
+          <View style={styles.inputContainer}>
+            <TextInput
+                style={styles.input}
+                value={word}
+                onChangeText={setWord}
+                placeholder="Enter a word to look up"
+                placeholderTextColor="#8896ab"
+                maxLength={30}
+            />
+            {word.length > 0 && (
                 <TouchableOpacity
-                  onPress={() => {
-                    setShowLanguageModal(false);
-                    setSearchQuery('');
-                  }}
-                  style={styles.closeButton}>
+                    style={styles.clearButton}
+                    onPress={clearAll}>
                   <X size={20} color="#394e6a" />
                 </TouchableOpacity>
-              </View>
-              <View style={styles.searchContainer}>
-                <Search size={20} color="#8896ab" style={styles.searchIcon} />
-                <TextInput
-                  style={styles.searchInput}
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                  placeholder="Search languages"
-                  placeholderTextColor="#8896ab"
-                />
-                {searchQuery.length > 0 && (
+            )}
+          </View>
+
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+
+          <TouchableOpacity
+              style={styles.button}
+              onPress={lookupWord}
+              disabled={loading}>
+            {loading ? (
+                <ActivityIndicator color="#fff" />
+            ) : (
+                <Text style={styles.buttonText}>Look Up Word</Text>
+            )}
+          </TouchableOpacity>
+
+          {(definition || synonyms || history) ? (
+              <View style={styles.resultsContainer}>
+                <View style={styles.resultsHeader}>
+                  <Text style={styles.resultsTitle}>Results</Text>
                   <TouchableOpacity
-                    style={styles.clearSearch}
-                    onPress={() => setSearchQuery('')}>
+                      style={styles.copyButton}
+                      onPress={copyToClipboard}>
+                    {copied ? (
+                        <Check size={20} color="#0069ff" />
+                    ) : (
+                        <Copy size={20} color="#394e6a" />
+                    )}
+                  </TouchableOpacity>
+                </View>
+
+                {definition ? (
+                    <View style={styles.section}>
+                      <TouchableOpacity
+                          style={styles.sectionHeader}
+                          onPress={() => toggleSection('definition')}>
+                        <Text style={styles.sectionTitle}>Definition</Text>
+                        <ChevronDown
+                            size={20}
+                            color="#394e6a"
+                            style={[
+                              styles.chevron,
+                              collapsedSections.definition && styles.chevronCollapsed,
+                            ]}
+                        />
+                      </TouchableOpacity>
+                      {!collapsedSections.definition && (
+                          <View style={styles.sectionContentWrapper}>
+                            <ScrollView
+                                style={[
+                                  styles.sectionContent,
+                                  { maxHeight: SECTION_HEIGHT },
+                                ]}
+                                contentContainerStyle={styles.sectionContentContainer}
+                                showsVerticalScrollIndicator={true}>
+                              <Markdown style={markdownStyles}>{definition}</Markdown>
+                            </ScrollView>
+                            <View style={styles.scrollIndicator}>
+                              <ChevronDown size={16} color="#8896ab" />
+                            </View>
+                          </View>
+                      )}
+                    </View>
+                ) : null}
+
+                {synonyms ? (
+                    <View style={styles.section}>
+                      <TouchableOpacity
+                          style={styles.sectionHeader}
+                          onPress={() => toggleSection('synonyms')}>
+                        <Text style={styles.sectionTitle}>Synonyms</Text>
+                        <ChevronDown
+                            size={20}
+                            color="#394e6a"
+                            style={[
+                              styles.chevron,
+                              collapsedSections.synonyms && styles.chevronCollapsed,
+                            ]}
+                        />
+                      </TouchableOpacity>
+                      {!collapsedSections.synonyms && (
+                          <View style={styles.sectionContentWrapper}>
+                            <ScrollView
+                                style={[
+                                  styles.sectionContent,
+                                  { maxHeight: SECTION_HEIGHT },
+                                ]}
+                                contentContainerStyle={styles.sectionContentContainer}
+                                showsVerticalScrollIndicator={true}>
+                              <Markdown style={markdownStyles}>{synonyms}</Markdown>
+                            </ScrollView>
+                            <View style={styles.scrollIndicator}>
+                              <ChevronDown size={16} color="#8896ab" />
+                            </View>
+                          </View>
+                      )}
+                    </View>
+                ) : null}
+
+                {history ? (
+                    <View style={styles.section}>
+                      <TouchableOpacity
+                          style={styles.sectionHeader}
+                          onPress={() => toggleSection('history')}>
+                        <Text style={styles.sectionTitle}>Word History</Text>
+                        <ChevronDown
+                            size={20}
+                            color="#394e6a"
+                            style={[
+                              styles.chevron,
+                              collapsedSections.history && styles.chevronCollapsed,
+                            ]}
+                        />
+                      </TouchableOpacity>
+                      {!collapsedSections.history && (
+                          <View style={styles.sectionContentWrapper}>
+                            <ScrollView
+                                style={[
+                                  styles.sectionContent,
+                                  { maxHeight: SECTION_HEIGHT },
+                                ]}
+                                contentContainerStyle={styles.sectionContentContainer}
+                                showsVerticalScrollIndicator={true}>
+                              <Markdown style={markdownStyles}>{history}</Markdown>
+                            </ScrollView>
+                            <View style={styles.scrollIndicator}>
+                              <ChevronDown size={16} color="#8896ab" />
+                            </View>
+                          </View>
+                      )}
+                    </View>
+                ) : null}
+              </View>
+          ) : null}
+
+          <Modal
+              visible={showLanguageModal}
+              animationType="slide"
+              transparent={true}
+              onRequestClose={() => {
+                setShowLanguageModal(false);
+                setSearchQuery('');
+              }}>
+            <View style={styles.modalContainer}>
+              <View style={[styles.modalContent, { height: '70%' }]}>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>Select Language</Text>
+                  <TouchableOpacity
+                      onPress={() => {
+                        setShowLanguageModal(false);
+                        setSearchQuery('');
+                      }}
+                      style={styles.closeButton}>
                     <X size={20} color="#394e6a" />
                   </TouchableOpacity>
-                )}
+                </View>
+                <View style={styles.searchContainer}>
+                  <Search size={20} color="#8896ab" style={styles.searchIcon} />
+                  <TextInput
+                      style={styles.searchInput}
+                      value={searchQuery}
+                      onChangeText={setSearchQuery}
+                      placeholder="Search languages"
+                      placeholderTextColor="#8896ab"
+                  />
+                  {searchQuery.length > 0 && (
+                      <TouchableOpacity
+                          style={styles.clearSearch}
+                          onPress={() => setSearchQuery('')}>
+                        <X size={20} color="#394e6a" />
+                      </TouchableOpacity>
+                  )}
+                </View>
+                <FlatList
+                    data={filteredLanguages}
+                    renderItem={renderLanguageItem}
+                    keyExtractor={(item) => item.value}
+                    style={styles.languageList}
+                    keyboardShouldPersistTaps="handled"
+                />
               </View>
-              <FlatList
-                data={filteredLanguages}
-                renderItem={renderLanguageItem}
-                keyExtractor={(item) => item.value}
-                style={styles.languageList}
-                keyboardShouldPersistTaps="handled"
-              />
             </View>
-          </View>
-        </Modal>
-      </View>
-    </ScrollView>
+          </Modal>
+        </View>
+      </ScrollView>
   );
 }
 
@@ -306,6 +413,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#e3e9f4',
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   loadingContainer: {
     flex: 1,
@@ -315,6 +425,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
+    paddingBottom: 32,
   },
   label: {
     fontSize: 16,
@@ -383,13 +494,51 @@ const styles = StyleSheet.create({
     color: '#394e6a',
   },
   section: {
-    marginBottom: 16,
+    marginBottom: 24,
+    backgroundColor: '#f8fafc',
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 12,
+    backgroundColor: '#f1f5f9',
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: '#394e6a',
-    marginBottom: 8,
+  },
+  sectionContentWrapper: {
+    position: 'relative',
+    backgroundColor: '#fff',
+  },
+  sectionContent: {
+    padding: 16,
+    backgroundColor: '#fff',
+  },
+  sectionContentContainer: {
+    paddingBottom: 32,
+  },
+  scrollIndicator: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#e5e7eb',
+  },
+  chevron: {
+    transform: [{ rotate: '0deg' }],
+  },
+  chevronCollapsed: {
+    transform: [{ rotate: '-180deg' }],
   },
   copyButton: {
     padding: 4,
