@@ -1,54 +1,49 @@
 import { Tabs } from 'expo-router';
-import { Chrome as Home, Users, Map, Video, MessageSquare } from 'lucide-react-native';
+import { MessageSquareText, Book, CircleCheck } from 'lucide-react-native';
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#FFFFFF',
-        tabBarInactiveTintColor: '#666666',
-        tabBarStyle: {
-          backgroundColor: '#121212',
-          borderTopColor: '#222222',
-        },
+        headerShown: true,
         headerStyle: {
-          backgroundColor: '#121212',
+          backgroundColor: '#0069ff',
         },
-        headerTintColor: '#FFFFFF',
+        headerTitleStyle: {
+          color: '#fff',
+        },
+        tabBarStyle: {
+          backgroundColor: '#fff',
+          borderTopColor: '#e5e7eb',
+        },
+        tabBarActiveTintColor: '#0069ff',
+        tabBarInactiveTintColor: '#394e6a',
       }}>
       <Tabs.Screen
-        name="index"
+        name="sentence-analyser"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
+          title: 'Sentence Analyser',
+          tabBarIcon: ({ color, size }) => (
+            <MessageSquareText size={size} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
-        name="ministries"
+        name="sentence-correction"
         options={{
-          title: 'Ministries',
-          tabBarIcon: ({ color, size }) => <Users size={size} color={color} />,
+          title: 'Correction',
+          tabBarIcon: ({ color, size }) => (
+            <CircleCheck size={size} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
-        name="locations"
+        name="word-dictionary"
         options={{
-          title: 'Locations',
-          tabBarIcon: ({ color, size }) => <Map size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="media"
-        options={{
-          title: 'Media',
-          tabBarIcon: ({ color, size }) => <Video size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="connect"
-        options={{
-          title: 'Connect',
-          tabBarIcon: ({ color, size }) => <MessageSquare size={size} color={color} />,
+          title: 'Dictionary',
+          tabBarIcon: ({ color, size }) => (
+            <Book size={size} color={color} />
+          ),
         }}
       />
     </Tabs>
