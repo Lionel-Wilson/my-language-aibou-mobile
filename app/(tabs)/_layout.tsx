@@ -22,7 +22,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="sentence-analyser"
         options={{
-          title: 'Sentence Analyser',
+          title: 'Analyse',
           tabBarIcon: ({ color, size }) => (
             <MessageSquareText size={size} color={color} />
           ),
