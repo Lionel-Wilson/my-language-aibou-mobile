@@ -7,4 +7,5 @@ export const endpoints = {
     sentenceCorrection: `${API_URL}/api/v1/sentence/correction`,
     wordDefinition: `${API_URL}/api/v1/word/definition`,
     wordSynonyms: `${API_URL}/api/v1/word/synonyms`,
+    wordHistory: `${API_URL}/api/v1/word/history`,
 };

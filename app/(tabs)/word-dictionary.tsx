@@ -31,6 +31,7 @@ export default function WordDictionary() {
   const [word, setWord] = useState('');
   const [definition, setDefinition] = useState('');
   const [synonyms, setSynonyms] = useState('');
+  const [history, setHistory] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
@@ -68,7 +69,7 @@ export default function WordDictionary() {
     setLoading(true);
 
     try {
-      const [definitionResponse, synonymsResponse] = await Promise.all([
+      const [definitionResponse, synonymsResponse,historyResponse] = await Promise.all([
         fetch(
           endpoints.wordDefinition,
           {
@@ -95,10 +96,21 @@ export default function WordDictionary() {
             }),
           }
         ),
+        fetch(endpoints.wordHistory, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            word,
+            nativeLanguage: language,
+          }),
+        }),
       ]);
 
       const definitionData = await definitionResponse.text();
       const synonymsData = await synonymsResponse.text();
+      const historyData = await historyResponse.text();
 
       if (!definitionResponse.ok) {
         throw new Error(definitionData);
@@ -106,12 +118,17 @@ export default function WordDictionary() {
       if (!synonymsResponse.ok) {
         throw new Error(synonymsData);
       }
+      if (!historyResponse.ok) {
+        throw new Error(historyData);
+      }
 
       const formattedDefinition = definitionData.replace(/\\n/g, '\n');
       const formattedSynonyms = synonymsData.replace(/\\n/g, '\n');
+      const formattedHistory = historyData.replace(/\\n/g, '\n');
 
       setDefinition(formattedDefinition);
       setSynonyms(formattedSynonyms);
+      setHistory(formattedHistory);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -120,11 +137,11 @@ export default function WordDictionary() {
   };
 
   const copyToClipboard = useCallback(async () => {
-    const textToCopy = `Definition:\n${definition}\n\nSynonyms:\n${synonyms}`;
+    const textToCopy = `Definition:\n${definition}\n\nSynonyms:\n${synonyms}\n\nHistory:\n${history}`;
     await Clipboard.setString(textToCopy);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  }, [definition, synonyms]);
+  }, [definition, synonyms, history]);
 
   const renderLanguageItem = ({ item }: { item: typeof LANGUAGES[0] }) => (
     <TouchableOpacity
@@ -221,6 +238,13 @@ export default function WordDictionary() {
                 <Text style={styles.sectionTitle}>Synonyms</Text>
                 <Markdown style={markdownStyles}>{synonyms}</Markdown>
               </View>
+            ) : null}
+
+            {history ? (
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>Word History</Text>
+                  <Markdown style={markdownStyles}>{history}</Markdown>
+                </View>
             ) : null}
           </View>
         ) : null}

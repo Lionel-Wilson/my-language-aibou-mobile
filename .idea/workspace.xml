@@ -4,9 +4,16 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3f7e58b0-f012-4ba3-9522-5a6bc0028f58" name="Changes" comment="update code with working code">
+    <list default="true" id="3f7e58b0-f012-4ba3-9522-5a6bc0028f58" name="Changes" comment="update read me">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(tabs)/sentence-analyser.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/sentence-analyser.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(tabs)/sentence-correction.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/sentence-correction.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(tabs)/word-dictionary.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/word-dictionary.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/babel.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/babel.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/utils/api.ts" afterDir="false" />
     </list>
     <list id="2bb9b43c-4b64-41f0-97e1-9dc7f6844217" name="local(don't push)" comment="">
       <change afterPath="$PROJECT_DIR$/.env" afterDir="false" />
@@ -108,7 +115,8 @@
     <MESSAGE value="intial commit" />
     <MESSAGE value="intial commit 2" />
     <MESSAGE value="update code with working code" />
-    <option name="LAST_COMMIT_MESSAGE" value="update code with working code" />
+    <MESSAGE value="update read me" />
+    <option name="LAST_COMMIT_MESSAGE" value="update read me" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
