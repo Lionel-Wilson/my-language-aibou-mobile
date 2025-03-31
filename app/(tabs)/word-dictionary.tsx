@@ -135,13 +135,23 @@ export default function WordDictionary() {
         throw new Error(historyData);
       }
 
-      const formattedDefinition = definitionData.replace(/\\n/g, '\n');
-      const formattedSynonyms = synonymsData.replace(/\\n/g, '\n');
-      const formattedHistory = historyData.replace(/\\n/g, '\n');
+      // Clean the response text before setting it
+      const cleanDefinition = definitionData
+          .replace(/\\n/g, '\n')
+          .replace(/^"/, '')
+          .replace(/"$/, '');
+      const cleanSynonyms = synonymsData
+          .replace(/\\n/g, '\n')
+          .replace(/^"/, '')
+          .replace(/"$/, '');
+      const cleanHistory = historyData
+          .replace(/\\n/g, '\n')
+          .replace(/^"/, '')
+          .replace(/"$/, '');
 
-      setDefinition(formattedDefinition);
-      setSynonyms(formattedSynonyms);
-      setHistory(formattedHistory);
+      setDefinition(cleanDefinition);
+      setSynonyms(cleanSynonyms);
+      setHistory(cleanHistory);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -156,6 +166,8 @@ export default function WordDictionary() {
         .replace(/\\"/g, '"') // Replace escaped quotes with regular quotes
         .replace(/\\n/g, '\n') // Replace escaped newlines with actual newlines
         .replace(/\\/g, '') // Remove any remaining backslashes
+        .replace(/^"/, '') // Remove leading quote
+        .replace(/"$/, '') // Remove trailing quote
         .replace(/\n+/g, '\n') // Replace multiple newlines with single
         .trim();
 

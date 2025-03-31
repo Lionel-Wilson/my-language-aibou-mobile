@@ -75,8 +75,12 @@ export default function SentenceAnalyser() {
         throw new Error(data);
       }
 
-      const formattedExplanation = data.replace(/\\n/g, '\n');
-      setExplanation(formattedExplanation);
+      // Clean the response text before setting it
+      const cleanedResponse = data
+          .replace(/\\n/g, '\n')
+          .replace(/^"/, '') // Remove leading quote
+          .replace(/"$/, ''); // Remove trailing quote
+      setExplanation(cleanedResponse);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -91,6 +95,8 @@ export default function SentenceAnalyser() {
         .replace(/\\"/g, '"') // Replace escaped quotes with regular quotes
         .replace(/\\n/g, '\n') // Replace escaped newlines with actual newlines
         .replace(/\\/g, '') // Remove any remaining backslashes
+        .replace(/^"/, '') // Remove leading quote
+        .replace(/"$/, '') // Remove trailing quote
         .replace(/\n+/g, '\n') // Replace multiple newlines with single
         .trim();
 
