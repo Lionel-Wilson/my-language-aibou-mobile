@@ -4,11 +4,10 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3f7e58b0-f012-4ba3-9522-5a6bc0028f58" name="Changes" comment="REname tab">
+    <list default="true" id="2bb9b43c-4b64-41f0-97e1-9dc7f6844217" name="local(don't push)" comment="local(don't push)">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(tabs)/sentence-analyser.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/sentence-analyser.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/(tabs)/word-dictionary.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/word-dictionary.tsx" afterDir="false" />
-    </list>
-    <list id="2bb9b43c-4b64-41f0-97e1-9dc7f6844217" name="local(don't push)" comment="">
-      <change afterPath="$PROJECT_DIR$/.env" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -110,7 +109,8 @@
     <MESSAGE value="update read me" />
     <MESSAGE value="add history endpoint" />
     <MESSAGE value="REname tab" />
-    <option name="LAST_COMMIT_MESSAGE" value="REname tab" />
+    <MESSAGE value="copy from inidiviual sections" />
+    <option name="LAST_COMMIT_MESSAGE" value="copy from inidiviual sections" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

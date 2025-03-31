@@ -14,7 +14,7 @@ import {
 import { X, Search, Copy, Check } from 'lucide-react-native';
 import Markdown from 'react-native-markdown-display';
 import { useLanguage } from '@/hooks/useLanguage';
-import {endpoints} from "@/utils/api";
+import { endpoints } from '@/utils/api';
 
 const LANGUAGES = [
   { label: 'English', value: 'English' },
@@ -36,8 +36,14 @@ export default function SentenceAnalyser() {
   const [searchQuery, setSearchQuery] = useState('');
   const [copied, setCopied] = useState(false);
 
+  const clearAll = () => {
+    setSentence('');
+    setExplanation('');
+    setError('');
+  };
+
   const filteredLanguages = LANGUAGES.filter((lang) =>
-    lang.label.toLowerCase().includes(searchQuery.toLowerCase())
+      lang.label.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const validateSentence = (text: string) => {
@@ -61,19 +67,16 @@ export default function SentenceAnalyser() {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        endpoints.sentenceAnalysis,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            sentence,
-            nativeLanguage: language,
-          }),
-        }
-      );
+      const response = await fetch(endpoints.sentenceAnalysis, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sentence,
+          nativeLanguage: language,
+        }),
+      });
 
       const data = await response.text();
       if (!response.ok) {
@@ -90,152 +93,161 @@ export default function SentenceAnalyser() {
   };
 
   const copyToClipboard = useCallback(async () => {
-    await Clipboard.setString(explanation);
+    // Remove markdown syntax and clean up the text
+    const cleanContent = explanation
+        .replace(/[#*`]/g, '') // Remove markdown headers, bold, code
+        .replace(/\\"/g, '"') // Replace escaped quotes with regular quotes
+        .replace(/\\n/g, '\n') // Replace escaped newlines with actual newlines
+        .replace(/\\/g, '') // Remove any remaining backslashes
+        .replace(/\n+/g, '\n') // Replace multiple newlines with single
+        .trim();
+
+    await Clipboard.setString(cleanContent);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }, [explanation]);
 
   const renderLanguageItem = ({ item }: { item: typeof LANGUAGES[0] }) => (
-    <TouchableOpacity
-      style={styles.languageItem}
-      onPress={() => {
-        setLanguage(item.value);
-        setShowLanguageModal(false);
-        setSearchQuery('');
-      }}>
-      <Text
-        style={[
-          styles.languageText,
-          language === item.value && styles.selectedLanguageText,
-        ]}>
-        {item.label}
-      </Text>
-      {language === item.value && (
-        <View style={styles.selectedIndicator} />
-      )}
-    </TouchableOpacity>
+      <TouchableOpacity
+          style={styles.languageItem}
+          onPress={() => {
+            setLanguage(item.value);
+            setShowLanguageModal(false);
+            setSearchQuery('');
+          }}>
+        <Text
+            style={[
+              styles.languageText,
+              language === item.value && styles.selectedLanguageText,
+            ]}>
+          {item.label}
+        </Text>
+        {language === item.value && (
+            <View style={styles.selectedIndicator} />
+        )}
+      </TouchableOpacity>
   );
 
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0069ff" />
-      </View>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0069ff" />
+        </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.label}>Your Native Language</Text>
-        <TouchableOpacity
-          style={styles.languageSelector}
-          onPress={() => setShowLanguageModal(true)}>
-          <Text style={styles.selectedLanguage}>{language}</Text>
-        </TouchableOpacity>
+      <ScrollView style={styles.container}>
+        <View style={styles.content}>
+          <Text style={styles.label}>Your Native Language</Text>
+          <TouchableOpacity
+              style={styles.languageSelector}
+              onPress={() => setShowLanguageModal(true)}>
+            <Text style={styles.selectedLanguage}>{language}</Text>
+          </TouchableOpacity>
 
-        <Text style={styles.label}>Enter a Sentence</Text>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            value={sentence}
-            onChangeText={setSentence}
-            placeholder="Enter a sentence to analyze"
-            placeholderTextColor="#8896ab"
-            multiline
-            numberOfLines={4}
-            maxLength={100}
-          />
-          {sentence.length > 0 && (
-            <TouchableOpacity
-              style={styles.clearButton}
-              onPress={() => setSentence('')}>
-              <X size={20} color="#394e6a" />
-            </TouchableOpacity>
-          )}
-        </View>
-
-        {error ? <Text style={styles.error}>{error}</Text> : null}
-
-        <TouchableOpacity
-          style={styles.button}
-          onPress={analyzeSentence}
-          disabled={loading}>
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>Analyze Sentence</Text>
-          )}
-        </TouchableOpacity>
-
-        {explanation ? (
-          <View style={styles.explanationContainer}>
-            <View style={styles.explanationHeader}>
-              <Text style={styles.explanationTitle}>Analysis</Text>
-              <TouchableOpacity
-                style={styles.copyButton}
-                onPress={copyToClipboard}>
-                {copied ? (
-                  <Check size={20} color="#0069ff" />
-                ) : (
-                  <Copy size={20} color="#394e6a" />
-                )}
-              </TouchableOpacity>
-            </View>
-            <Markdown style={markdownStyles}>{explanation}</Markdown>
-          </View>
-        ) : null}
-
-        <Modal
-          visible={showLanguageModal}
-          animationType="slide"
-          transparent={true}
-          onRequestClose={() => {
-            setShowLanguageModal(false);
-            setSearchQuery('');
-          }}>
-          <View style={styles.modalContainer}>
-            <View style={[styles.modalContent, { height: '70%' }]}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Select Language</Text>
+          <Text style={styles.label}>Enter a Sentence</Text>
+          <View style={styles.inputContainer}>
+            <TextInput
+                style={styles.input}
+                value={sentence}
+                onChangeText={setSentence}
+                placeholder="Enter a sentence to analyze"
+                placeholderTextColor="#8896ab"
+                multiline
+                numberOfLines={4}
+                maxLength={100}
+            />
+            {sentence.length > 0 && (
                 <TouchableOpacity
-                  onPress={() => {
-                    setShowLanguageModal(false);
-                    setSearchQuery('');
-                  }}
-                  style={styles.closeButton}>
+                    style={styles.clearButton}
+                    onPress={clearAll}>
                   <X size={20} color="#394e6a" />
                 </TouchableOpacity>
-              </View>
-              <View style={styles.searchContainer}>
-                <Search size={20} color="#8896ab" style={styles.searchIcon} />
-                <TextInput
-                  style={styles.searchInput}
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                  placeholder="Search languages"
-                  placeholderTextColor="#8896ab"
-                />
-                {searchQuery.length > 0 && (
+            )}
+          </View>
+
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+
+          <TouchableOpacity
+              style={styles.button}
+              onPress={analyzeSentence}
+              disabled={loading}>
+            {loading ? (
+                <ActivityIndicator color="#fff" />
+            ) : (
+                <Text style={styles.buttonText}>Analyze Sentence</Text>
+            )}
+          </TouchableOpacity>
+
+          {explanation ? (
+              <View style={styles.explanationContainer}>
+                <View style={styles.explanationHeader}>
+                  <Text style={styles.explanationTitle}>Analysis</Text>
                   <TouchableOpacity
-                    style={styles.clearSearch}
-                    onPress={() => setSearchQuery('')}>
+                      style={styles.copyButton}
+                      onPress={copyToClipboard}>
+                    {copied ? (
+                        <Check size={20} color="#0069ff" />
+                    ) : (
+                        <Copy size={20} color="#394e6a" />
+                    )}
+                  </TouchableOpacity>
+                </View>
+                <Markdown style={markdownStyles}>{explanation}</Markdown>
+              </View>
+          ) : null}
+
+          <Modal
+              visible={showLanguageModal}
+              animationType="slide"
+              transparent={true}
+              onRequestClose={() => {
+                setShowLanguageModal(false);
+                setSearchQuery('');
+              }}>
+            <View style={styles.modalContainer}>
+              <View style={[styles.modalContent, { height: '70%' }]}>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>Select Language</Text>
+                  <TouchableOpacity
+                      onPress={() => {
+                        setShowLanguageModal(false);
+                        setSearchQuery('');
+                      }}
+                      style={styles.closeButton}>
                     <X size={20} color="#394e6a" />
                   </TouchableOpacity>
-                )}
+                </View>
+                <View style={styles.searchContainer}>
+                  <Search size={20} color="#8896ab" style={styles.searchIcon} />
+                  <TextInput
+                      style={styles.searchInput}
+                      value={searchQuery}
+                      onChangeText={setSearchQuery}
+                      placeholder="Search languages"
+                      placeholderTextColor="#8896ab"
+                  />
+                  {searchQuery.length > 0 && (
+                      <TouchableOpacity
+                          style={styles.clearSearch}
+                          onPress={() => setSearchQuery('')}>
+                        <X size={20} color="#394e6a" />
+                      </TouchableOpacity>
+                  )}
+                </View>
+                <FlatList
+                    data={filteredLanguages}
+                    renderItem={renderLanguageItem}
+                    keyExtractor={(item) => item.value}
+                    style={styles.languageList}
+                    keyboardShouldPersistTaps="handled"
+                />
               </View>
-              <FlatList
-                data={filteredLanguages}
-                renderItem={renderLanguageItem}
-                keyExtractor={(item) => item.value}
-                style={styles.languageList}
-                keyboardShouldPersistTaps="handled"
-              />
             </View>
-          </View>
-        </Modal>
-      </View>
-    </ScrollView>
+          </Modal>
+        </View>
+      </ScrollView>
   );
 }
 

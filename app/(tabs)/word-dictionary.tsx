@@ -157,9 +157,12 @@ export default function WordDictionary() {
   };
 
   const copyToClipboard = useCallback(async (section: string, content: string) => {
-    // Remove markdown syntax
+    // Remove markdown syntax and clean up the text
     const cleanContent = content
         .replace(/[#*`]/g, '') // Remove markdown headers, bold, code
+        .replace(/\\"/g, '"') // Replace escaped quotes with regular quotes
+        .replace(/\\n/g, '\n') // Replace escaped newlines with actual newlines
+        .replace(/\\/g, '') // Remove any remaining backslashes
         .replace(/\n+/g, '\n') // Replace multiple newlines with single
         .trim();
 
