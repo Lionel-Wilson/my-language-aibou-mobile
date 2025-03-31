@@ -64,7 +64,7 @@ export default function SentenceAnalyser() {
       const response = await fetch(
         endpoints.sentenceAnalysis,
         {
-          method: 'GET',
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
