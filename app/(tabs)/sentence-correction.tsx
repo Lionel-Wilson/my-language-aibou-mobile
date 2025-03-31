@@ -15,16 +15,8 @@ import { X, Search, Copy, Check } from 'lucide-react-native';
 import Markdown from 'react-native-markdown-display';
 import { useLanguage } from '@/hooks/useLanguage';
 import {endpoints} from "@/utils/api";
+import {LANGUAGES} from "@/utils/constants";
 
-const LANGUAGES = [
-  { label: 'English', value: 'English' },
-  { label: 'Spanish', value: 'Spanish' },
-  { label: 'French', value: 'French' },
-  { label: 'German', value: 'German' },
-  { label: 'Japanese', value: 'Japanese' },
-  { label: 'Korean', value: 'Korean' },
-  { label: 'Chinese', value: 'Chinese' },
-];
 
 export default function SentenceCorrection() {
   const { language, setLanguage, isLoading } = useLanguage();
