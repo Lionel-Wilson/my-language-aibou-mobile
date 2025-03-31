@@ -63,7 +63,7 @@ export default function SentenceCorrection() {
     try {
       const response = await fetch(
         endpoints.sentenceCorrection,{
-          method: 'GET',
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
