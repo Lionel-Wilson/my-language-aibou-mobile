@@ -27,7 +27,7 @@ const LANGUAGES = [
   { label: 'Chinese', value: 'Chinese' },
 ];
 
-const { height, width } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 const SECTION_HEIGHT = Math.min(height * 0.5, 400);
 
@@ -41,7 +41,7 @@ export default function WordDictionary() {
   const [loading, setLoading] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [copied, setCopied] = useState(false);
+  const [copiedSection, setCopiedSection] = useState<string | null>(null);
 
   const [collapsedSections, setCollapsedSections] = useState({
     definition: false,
@@ -156,12 +156,17 @@ export default function WordDictionary() {
     }
   };
 
-  const copyToClipboard = useCallback(async () => {
-    const textToCopy = `Definition:\n${definition}\n\nSynonyms:\n${synonyms}\n\nHistory:\n${history}`;
-    await Clipboard.setString(textToCopy);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }, [definition, synonyms, history]);
+  const copyToClipboard = useCallback(async (section: string, content: string) => {
+    // Remove markdown syntax
+    const cleanContent = content
+        .replace(/[#*`]/g, '') // Remove markdown headers, bold, code
+        .replace(/\n+/g, '\n') // Replace multiple newlines with single
+        .trim();
+
+    await Clipboard.setString(cleanContent);
+    setCopiedSection(section);
+    setTimeout(() => setCopiedSection(null), 2000);
+  }, []);
 
   const renderLanguageItem = ({ item }: { item: typeof LANGUAGES[0] }) => (
       <TouchableOpacity
@@ -239,33 +244,31 @@ export default function WordDictionary() {
 
           {(definition || synonyms || history) ? (
               <View style={styles.resultsContainer}>
-                <View style={styles.resultsHeader}>
-                  <Text style={styles.resultsTitle}>Results</Text>
-                  <TouchableOpacity
-                      style={styles.copyButton}
-                      onPress={copyToClipboard}>
-                    {copied ? (
-                        <Check size={20} color="#0069ff" />
-                    ) : (
-                        <Copy size={20} color="#394e6a" />
-                    )}
-                  </TouchableOpacity>
-                </View>
-
                 {definition ? (
                     <View style={styles.section}>
                       <TouchableOpacity
                           style={styles.sectionHeader}
                           onPress={() => toggleSection('definition')}>
                         <Text style={styles.sectionTitle}>Definition</Text>
-                        <ChevronDown
-                            size={20}
-                            color="#394e6a"
-                            style={[
-                              styles.chevron,
-                              collapsedSections.definition && styles.chevronCollapsed,
-                            ]}
-                        />
+                        <View style={styles.sectionHeaderRight}>
+                          <TouchableOpacity
+                              style={styles.copyButton}
+                              onPress={() => copyToClipboard('definition', definition)}>
+                            {copiedSection === 'definition' ? (
+                                <Check size={20} color="#0069ff" />
+                            ) : (
+                                <Copy size={20} color="#394e6a" />
+                            )}
+                          </TouchableOpacity>
+                          <ChevronDown
+                              size={20}
+                              color="#394e6a"
+                              style={[
+                                styles.chevron,
+                                collapsedSections.definition && styles.chevronCollapsed,
+                              ]}
+                          />
+                        </View>
                       </TouchableOpacity>
                       {!collapsedSections.definition && (
                           <View style={styles.sectionContentWrapper}>
@@ -292,14 +295,25 @@ export default function WordDictionary() {
                           style={styles.sectionHeader}
                           onPress={() => toggleSection('synonyms')}>
                         <Text style={styles.sectionTitle}>Synonyms</Text>
-                        <ChevronDown
-                            size={20}
-                            color="#394e6a"
-                            style={[
-                              styles.chevron,
-                              collapsedSections.synonyms && styles.chevronCollapsed,
-                            ]}
-                        />
+                        <View style={styles.sectionHeaderRight}>
+                          <TouchableOpacity
+                              style={styles.copyButton}
+                              onPress={() => copyToClipboard('synonyms', synonyms)}>
+                            {copiedSection === 'synonyms' ? (
+                                <Check size={20} color="#0069ff" />
+                            ) : (
+                                <Copy size={20} color="#394e6a" />
+                            )}
+                          </TouchableOpacity>
+                          <ChevronDown
+                              size={20}
+                              color="#394e6a"
+                              style={[
+                                styles.chevron,
+                                collapsedSections.synonyms && styles.chevronCollapsed,
+                              ]}
+                          />
+                        </View>
                       </TouchableOpacity>
                       {!collapsedSections.synonyms && (
                           <View style={styles.sectionContentWrapper}>
@@ -326,14 +340,25 @@ export default function WordDictionary() {
                           style={styles.sectionHeader}
                           onPress={() => toggleSection('history')}>
                         <Text style={styles.sectionTitle}>Word History</Text>
-                        <ChevronDown
-                            size={20}
-                            color="#394e6a"
-                            style={[
-                              styles.chevron,
-                              collapsedSections.history && styles.chevronCollapsed,
-                            ]}
-                        />
+                        <View style={styles.sectionHeaderRight}>
+                          <TouchableOpacity
+                              style={styles.copyButton}
+                              onPress={() => copyToClipboard('history', history)}>
+                            {copiedSection === 'history' ? (
+                                <Check size={20} color="#0069ff" />
+                            ) : (
+                                <Copy size={20} color="#394e6a" />
+                            )}
+                          </TouchableOpacity>
+                          <ChevronDown
+                              size={20}
+                              color="#394e6a"
+                              style={[
+                                styles.chevron,
+                                collapsedSections.history && styles.chevronCollapsed,
+                              ]}
+                          />
+                        </View>
                       </TouchableOpacity>
                       {!collapsedSections.history && (
                           <View style={styles.sectionContentWrapper}>
@@ -482,17 +507,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 16,
   },
-  resultsHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  resultsTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#394e6a',
-  },
   section: {
     marginBottom: 24,
     backgroundColor: '#f8fafc',
@@ -505,6 +519,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 12,
     backgroundColor: '#f1f5f9',
+  },
+  sectionHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   sectionTitle: {
     fontSize: 16,
