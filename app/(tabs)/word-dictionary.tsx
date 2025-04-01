@@ -16,9 +16,8 @@ import { X, Search, Copy, Check, ChevronDown } from 'lucide-react-native';
 import Markdown from 'react-native-markdown-display';
 import { useLanguage } from '@/hooks/useLanguage';
 import { endpoints } from '@/utils/api';
+import { LinearGradient } from 'expo-linear-gradient';
 import {LANGUAGES} from "@/utils/constants";
-
-
 
 const { height } = Dimensions.get('window');
 
@@ -58,7 +57,7 @@ export default function WordDictionary() {
   };
 
   const filteredLanguages = LANGUAGES.filter((lang) =>
-      lang.label.toLowerCase().includes(searchQuery.toLowerCase())
+    lang.label.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const validateWord = (text: string) => {
@@ -135,19 +134,18 @@ export default function WordDictionary() {
         throw new Error(historyData);
       }
 
-      // Clean the response text before setting it
       const cleanDefinition = definitionData
-          .replace(/\\n/g, '\n')
-          .replace(/^"/, '')
-          .replace(/"$/, '');
+        .replace(/\\n/g, '\n')
+        .replace(/^"/, '')
+        .replace(/"$/, '');
       const cleanSynonyms = synonymsData
-          .replace(/\\n/g, '\n')
-          .replace(/^"/, '')
-          .replace(/"$/, '');
+        .replace(/\\n/g, '\n')
+        .replace(/^"/, '')
+        .replace(/"$/, '');
       const cleanHistory = historyData
-          .replace(/\\n/g, '\n')
-          .replace(/^"/, '')
-          .replace(/"$/, '');
+        .replace(/\\n/g, '\n')
+        .replace(/^"/, '')
+        .replace(/"$/, '');
 
       setDefinition(cleanDefinition);
       setSynonyms(cleanSynonyms);
@@ -160,16 +158,15 @@ export default function WordDictionary() {
   };
 
   const copyToClipboard = useCallback(async (section: string, content: string) => {
-    // Remove markdown syntax and clean up the text
     const cleanContent = content
-        .replace(/[#*`]/g, '') // Remove markdown headers, bold, code
-        .replace(/\\"/g, '"') // Replace escaped quotes with regular quotes
-        .replace(/\\n/g, '\n') // Replace escaped newlines with actual newlines
-        .replace(/\\/g, '') // Remove any remaining backslashes
-        .replace(/^"/, '') // Remove leading quote
-        .replace(/"$/, '') // Remove trailing quote
-        .replace(/\n+/g, '\n') // Replace multiple newlines with single
-        .trim();
+      .replace(/[#*`]/g, '')
+      .replace(/\\"/g, '"')
+      .replace(/\\n/g, '\n')
+      .replace(/\\/g, '')
+      .replace(/^"/, '')
+      .replace(/"$/, '')
+      .replace(/\n+/g, '\n')
+      .trim();
 
     await Clipboard.setString(cleanContent);
     setCopiedSection(section);
@@ -177,275 +174,281 @@ export default function WordDictionary() {
   }, []);
 
   const renderLanguageItem = ({ item }: { item: typeof LANGUAGES[0] }) => (
-      <TouchableOpacity
-          style={styles.languageItem}
-          onPress={() => {
-            setLanguage(item.value);
-            setShowLanguageModal(false);
-            setSearchQuery('');
-          }}>
-        <Text
-            style={[
-              styles.languageText,
-              language === item.value && styles.selectedLanguageText,
-            ]}>
-          {item.label}
-        </Text>
-        {language === item.value && (
-            <View style={styles.selectedIndicator} />
-        )}
-      </TouchableOpacity>
+    <TouchableOpacity
+      style={styles.languageItem}
+      onPress={() => {
+        setLanguage(item.value);
+        setShowLanguageModal(false);
+        setSearchQuery('');
+      }}>
+      <Text
+        style={[
+          styles.languageText,
+          language === item.value && styles.selectedLanguageText,
+        ]}>
+        {item.label}
+      </Text>
+      {language === item.value && (
+        <View style={styles.selectedIndicator} />
+      )}
+    </TouchableOpacity>
   );
 
   if (isLoading) {
     return (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#0069ff" />
-        </View>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#60a5fa" />
+      </View>
     );
   }
 
   return (
-      <ScrollView
-          style={styles.container}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}>
-        <View style={styles.content}>
-          <Text style={styles.label}>Your Native Language</Text>
-          <TouchableOpacity
-              style={styles.languageSelector}
-              onPress={() => setShowLanguageModal(true)}>
-            <Text style={styles.selectedLanguage}>{language}</Text>
-          </TouchableOpacity>
+    <ScrollView 
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}>
+      <LinearGradient
+        colors={['#1a1f36', '#2a2f45']}
+        style={styles.content}>
+        <Text style={styles.label}>Your Native Language</Text>
+        <TouchableOpacity
+          style={styles.languageSelector}
+          onPress={() => setShowLanguageModal(true)}>
+          <Text style={styles.selectedLanguage}>{language}</Text>
+        </TouchableOpacity>
 
-          <Text style={styles.label}>Enter a Word</Text>
-          <View style={styles.inputContainer}>
-            <TextInput
-                style={styles.input}
-                value={word}
-                onChangeText={setWord}
-                placeholder="Enter a word to look up"
-                placeholderTextColor="#8896ab"
-                maxLength={30}
-            />
-            {word.length > 0 && (
+        <Text style={styles.label}>Enter a Word</Text>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            value={word}
+            onChangeText={setWord}
+            placeholder="Enter a word to look up"
+            placeholderTextColor="#94a3b8"
+            maxLength={30}
+          />
+          {word.length > 0 && (
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={clearAll}>
+              <X size={20} color="#94a3b8" />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={lookupWord}
+          disabled={loading}>
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Look Up Word</Text>
+          )}
+        </TouchableOpacity>
+
+        {(definition || synonyms || history) ? (
+          <View style={styles.resultsContainer}>
+            {definition ? (
+              <View style={styles.section}>
                 <TouchableOpacity
-                    style={styles.clearButton}
-                    onPress={clearAll}>
-                  <X size={20} color="#394e6a" />
+                  style={styles.sectionHeader}
+                  onPress={() => toggleSection('definition')}>
+                  <Text style={styles.sectionTitle}>Definition</Text>
+                  <View style={styles.sectionHeaderRight}>
+                    <TouchableOpacity
+                      style={styles.copyButton}
+                      onPress={() => copyToClipboard('definition', definition)}>
+                      {copiedSection === 'definition' ? (
+                        <Check size={20} color="#60a5fa" />
+                      ) : (
+                        <Copy size={20} color="#94a3b8" />
+                      )}
+                    </TouchableOpacity>
+                    <ChevronDown
+                      size={20}
+                      color="#94a3b8"
+                      style={[
+                        styles.chevron,
+                        collapsedSections.definition && styles.chevronCollapsed,
+                      ]}
+                    />
+                  </View>
                 </TouchableOpacity>
-            )}
-          </View>
-
-          {error ? <Text style={styles.error}>{error}</Text> : null}
-
-          <TouchableOpacity
-              style={styles.button}
-              onPress={lookupWord}
-              disabled={loading}>
-            {loading ? (
-                <ActivityIndicator color="#fff" />
-            ) : (
-                <Text style={styles.buttonText}>Look Up Word</Text>
-            )}
-          </TouchableOpacity>
-
-          {(definition || synonyms || history) ? (
-              <View style={styles.resultsContainer}>
-                {definition ? (
-                    <View style={styles.section}>
-                      <TouchableOpacity
-                          style={styles.sectionHeader}
-                          onPress={() => toggleSection('definition')}>
-                        <Text style={styles.sectionTitle}>Definition</Text>
-                        <View style={styles.sectionHeaderRight}>
-                          <TouchableOpacity
-                              style={styles.copyButton}
-                              onPress={() => copyToClipboard('definition', definition)}>
-                            {copiedSection === 'definition' ? (
-                                <Check size={20} color="#0069ff" />
-                            ) : (
-                                <Copy size={20} color="#394e6a" />
-                            )}
-                          </TouchableOpacity>
-                          <ChevronDown
-                              size={20}
-                              color="#394e6a"
-                              style={[
-                                styles.chevron,
-                                collapsedSections.definition && styles.chevronCollapsed,
-                              ]}
-                          />
-                        </View>
-                      </TouchableOpacity>
-                      {!collapsedSections.definition && (
-                          <View style={styles.sectionContentWrapper}>
-                            <ScrollView
-                                style={[
-                                  styles.sectionContent,
-                                  { maxHeight: SECTION_HEIGHT },
-                                ]}
-                                contentContainerStyle={styles.sectionContentContainer}
-                                showsVerticalScrollIndicator={true}>
-                              <Markdown style={markdownStyles}>{definition}</Markdown>
-                            </ScrollView>
-                            <View style={styles.scrollIndicator}>
-                              <ChevronDown size={16} color="#8896ab" />
-                            </View>
-                          </View>
-                      )}
+                {!collapsedSections.definition && (
+                  <View style={styles.sectionContentWrapper}>
+                    <ScrollView
+                      style={[
+                        styles.sectionContent,
+                        { maxHeight: SECTION_HEIGHT },
+                      ]}
+                      contentContainerStyle={styles.sectionContentContainer}
+                      showsVerticalScrollIndicator={true}>
+                      <Markdown style={markdownStyles}>{definition}</Markdown>
+                    </ScrollView>
+                    <View style={styles.scrollIndicator}>
+                      <ChevronDown size={16} color="#94a3b8" />
                     </View>
-                ) : null}
-
-                {synonyms ? (
-                    <View style={styles.section}>
-                      <TouchableOpacity
-                          style={styles.sectionHeader}
-                          onPress={() => toggleSection('synonyms')}>
-                        <Text style={styles.sectionTitle}>Synonyms</Text>
-                        <View style={styles.sectionHeaderRight}>
-                          <TouchableOpacity
-                              style={styles.copyButton}
-                              onPress={() => copyToClipboard('synonyms', synonyms)}>
-                            {copiedSection === 'synonyms' ? (
-                                <Check size={20} color="#0069ff" />
-                            ) : (
-                                <Copy size={20} color="#394e6a" />
-                            )}
-                          </TouchableOpacity>
-                          <ChevronDown
-                              size={20}
-                              color="#394e6a"
-                              style={[
-                                styles.chevron,
-                                collapsedSections.synonyms && styles.chevronCollapsed,
-                              ]}
-                          />
-                        </View>
-                      </TouchableOpacity>
-                      {!collapsedSections.synonyms && (
-                          <View style={styles.sectionContentWrapper}>
-                            <ScrollView
-                                style={[
-                                  styles.sectionContent,
-                                  { maxHeight: SECTION_HEIGHT },
-                                ]}
-                                contentContainerStyle={styles.sectionContentContainer}
-                                showsVerticalScrollIndicator={true}>
-                              <Markdown style={markdownStyles}>{synonyms}</Markdown>
-                            </ScrollView>
-                            <View style={styles.scrollIndicator}>
-                              <ChevronDown size={16} color="#8896ab" />
-                            </View>
-                          </View>
-                      )}
-                    </View>
-                ) : null}
-
-                {history ? (
-                    <View style={styles.section}>
-                      <TouchableOpacity
-                          style={styles.sectionHeader}
-                          onPress={() => toggleSection('history')}>
-                        <Text style={styles.sectionTitle}>Word History</Text>
-                        <View style={styles.sectionHeaderRight}>
-                          <TouchableOpacity
-                              style={styles.copyButton}
-                              onPress={() => copyToClipboard('history', history)}>
-                            {copiedSection === 'history' ? (
-                                <Check size={20} color="#0069ff" />
-                            ) : (
-                                <Copy size={20} color="#394e6a" />
-                            )}
-                          </TouchableOpacity>
-                          <ChevronDown
-                              size={20}
-                              color="#394e6a"
-                              style={[
-                                styles.chevron,
-                                collapsedSections.history && styles.chevronCollapsed,
-                              ]}
-                          />
-                        </View>
-                      </TouchableOpacity>
-                      {!collapsedSections.history && (
-                          <View style={styles.sectionContentWrapper}>
-                            <ScrollView
-                                style={[
-                                  styles.sectionContent,
-                                  { maxHeight: SECTION_HEIGHT },
-                                ]}
-                                contentContainerStyle={styles.sectionContentContainer}
-                                showsVerticalScrollIndicator={true}>
-                              <Markdown style={markdownStyles}>{history}</Markdown>
-                            </ScrollView>
-                            <View style={styles.scrollIndicator}>
-                              <ChevronDown size={16} color="#8896ab" />
-                            </View>
-                          </View>
-                      )}
-                    </View>
-                ) : null}
+                  </View>
+                )}
               </View>
-          ) : null}
+            ) : null}
 
-          <Modal
-              visible={showLanguageModal}
-              animationType="slide"
-              transparent={true}
-              onRequestClose={() => {
-                setShowLanguageModal(false);
-                setSearchQuery('');
-              }}>
-            <View style={styles.modalContainer}>
-              <View style={[styles.modalContent, { height: '70%' }]}>
+            {synonyms ? (
+              <View style={styles.section}>
+                <TouchableOpacity
+                  style={styles.sectionHeader}
+                  onPress={() => toggleSection('synonyms')}>
+                  <Text style={styles.sectionTitle}>Synonyms</Text>
+                  <View style={styles.sectionHeaderRight}>
+                    <TouchableOpacity
+                      style={styles.copyButton}
+                      onPress={() => copyToClipboard('synonyms', synonyms)}>
+                      {copiedSection === 'synonyms' ? (
+                        <Check size={20} color="#60a5fa" />
+                      ) : (
+                        <Copy size={20} color="#94a3b8" />
+                      )}
+                    </TouchableOpacity>
+                    <ChevronDown
+                      size={20}
+                      color="#94a3b8"
+                      style={[
+                        styles.chevron,
+                        collapsedSections.synonyms && styles.chevronCollapsed,
+                      ]}
+                    />
+                  </View>
+                </TouchableOpacity>
+                {!collapsedSections.synonyms && (
+                  <View style={styles.sectionContentWrapper}>
+                    <ScrollView
+                      style={[
+                        styles.sectionContent,
+                        { maxHeight: SECTION_HEIGHT },
+                      ]}
+                      contentContainerStyle={styles.sectionContentContainer}
+                      showsVerticalScrollIndicator={true}>
+                      <Markdown style={markdownStyles}>{synonyms}</Markdown>
+                    </ScrollView>
+                    <View style={styles.scrollIndicator}>
+                      <ChevronDown size={16} color="#94a3b8" />
+                    </View>
+                  </View>
+                )}
+              </View>
+            ) : null}
+
+            {history ? (
+              <View style={styles.section}>
+                <TouchableOpacity
+                  style={styles.sectionHeader}
+                  onPress={() => toggleSection('history')}>
+                  <Text style={styles.sectionTitle}>Word History</Text>
+                  <View style={styles.sectionHeaderRight}>
+                    <TouchableOpacity
+                      style={styles.copyButton}
+                      onPress={() => copyToClipboard('history', history)}>
+                      {copiedSection === 'history' ? (
+                        <Check size={20} color="#60a5fa" />
+                      ) : (
+                        <Copy size={20} color="#94a3b8" />
+                      )}
+                    </TouchableOpacity>
+                    <ChevronDown
+                      size={20}
+                      color="#94a3b8"
+                      style={[
+                        styles.chevron,
+                        collapsedSections.history && styles.chevronCollapsed,
+                      ]}
+                    />
+                  </View>
+                </TouchableOpacity>
+                {!collapsedSections.history && (
+                  <View style={styles.sectionContentWrapper}>
+                    <ScrollView
+                      style={[
+                        styles.sectionContent,
+                        { maxHeight: SECTION_HEIGHT },
+                      ]}
+                      contentContainerStyle={styles.sectionContentContainer}
+                      showsVerticalScrollIndicator={true}>
+                      <Markdown style={markdownStyles}>{history}</Markdown>
+                    </ScrollView>
+                    <View style={styles.scrollIndicator}>
+                      <ChevronDown size={16} color="#94a3b8" />
+                    </View>
+                  </View>
+                )}
+              </View>
+            ) : null}
+          </View>
+        ) : null}
+
+        <Modal
+          visible={showLanguageModal}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => {
+            setShowLanguageModal(false);
+            setSearchQuery('');
+          }}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <LinearGradient
+                colors={['#1a1f36', '#2a2f45']}
+                style={styles.modalInner}>
                 <View style={styles.modalHeader}>
                   <Text style={styles.modalTitle}>Select Language</Text>
                   <TouchableOpacity
-                      onPress={() => {
-                        setShowLanguageModal(false);
-                        setSearchQuery('');
-                      }}
-                      style={styles.closeButton}>
-                    <X size={20} color="#394e6a" />
+                    onPress={() => {
+                      setShowLanguageModal(false);
+                      setSearchQuery('');
+                    }}
+                    style={styles.closeButton}>
+                    <X size={20} color="#94a3b8" />
                   </TouchableOpacity>
                 </View>
                 <View style={styles.searchContainer}>
-                  <Search size={20} color="#8896ab" style={styles.searchIcon} />
+                  <Search size={20} color="#94a3b8" style={styles.searchIcon} />
                   <TextInput
-                      style={styles.searchInput}
-                      value={searchQuery}
-                      onChangeText={setSearchQuery}
-                      placeholder="Search languages"
-                      placeholderTextColor="#8896ab"
+                    style={styles.searchInput}
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    placeholder="Search languages"
+                    placeholderTextColor="#94a3b8"
                   />
                   {searchQuery.length > 0 && (
-                      <TouchableOpacity
-                          style={styles.clearSearch}
-                          onPress={() => setSearchQuery('')}>
-                        <X size={20} color="#394e6a" />
-                      </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.clearSearch}
+                      onPress={() => setSearchQuery('')}>
+                      <X size={20} color="#94a3b8" />
+                    </TouchableOpacity>
                   )}
                 </View>
                 <FlatList
-                    data={filteredLanguages}
-                    renderItem={renderLanguageItem}
-                    keyExtractor={(item) => item.value}
-                    style={styles.languageList}
-                    keyboardShouldPersistTaps="handled"
+                  data={filteredLanguages}
+                  renderItem={renderLanguageItem}
+                  keyExtractor={(item) => item.value}
+                  style={styles.languageList}
+                  keyboardShouldPersistTaps="handled"
                 />
-              </View>
+              </LinearGradient>
             </View>
-          </Modal>
-        </View>
-      </ScrollView>
+          </View>
+        </Modal>
+      </LinearGradient>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e3e9f4',
+    backgroundColor: '#1a1f36',
   },
   scrollContent: {
     flexGrow: 1,
@@ -454,50 +457,55 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#e3e9f4',
+    backgroundColor: '#1a1f36',
   },
   content: {
+    flex: 1,
     padding: 16,
     paddingBottom: 32,
   },
   label: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#394e6a',
+    color: '#fff',
     marginBottom: 8,
   },
   languageSelector: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 12,
+    padding: 16,
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   selectedLanguage: {
     fontSize: 16,
-    color: '#394e6a',
+    color: '#fff',
   },
   inputContainer: {
     position: 'relative',
     marginBottom: 16,
   },
   input: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 12,
+    padding: 16,
     paddingRight: 40,
     fontSize: 16,
-    color: '#394e6a',
+    color: '#fff',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   clearButton: {
     position: 'absolute',
-    top: 8,
-    right: 8,
+    top: 16,
+    right: 16,
     padding: 4,
   },
   button: {
-    backgroundColor: '#0069ff',
+    backgroundColor: '#60a5fa',
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 12,
     alignItems: 'center',
     marginBottom: 16,
   },
@@ -507,44 +515,47 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   error: {
-    color: '#dc2626',
+    color: '#ef4444',
     marginBottom: 16,
   },
   resultsContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 16,
     padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   section: {
     marginBottom: 24,
-    backgroundColor: '#f8fafc',
-    borderRadius: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 12,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 12,
-    backgroundColor: '#f1f5f9',
+    padding: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
   },
   sectionHeaderRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#394e6a',
+    color: '#fff',
   },
   sectionContentWrapper: {
     position: 'relative',
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255, 255, 255, 0.02)',
   },
   sectionContent: {
     padding: 16,
-    backgroundColor: '#fff',
   },
   sectionContentContainer: {
     paddingBottom: 32,
@@ -555,11 +566,11 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: 'rgba(26, 31, 54, 0.9)',
     justifyContent: 'center',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
+    borderTopColor: 'rgba(255, 255, 255, 0.1)',
   },
   chevron: {
     transform: [{ rotate: '0deg' }],
@@ -576,23 +587,28 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
     height: '70%',
+    backgroundColor: '#1a1f36',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    overflow: 'hidden',
+  },
+  modalInner: {
+    flex: 1,
+    padding: 16,
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '600',
-    color: '#394e6a',
+    color: '#fff',
   },
   closeButton: {
     padding: 4,
@@ -600,10 +616,12 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 8,
-    backgroundColor: '#f3f4f6',
+    padding: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     margin: 16,
-    borderRadius: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   searchIcon: {
     marginRight: 8,
@@ -611,7 +629,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: '#394e6a',
+    color: '#fff',
     padding: 4,
   },
   clearSearch: {
@@ -626,41 +644,57 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 12,
+    marginBottom: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   languageText: {
     fontSize: 16,
-    color: '#394e6a',
+    color: '#fff',
   },
   selectedLanguageText: {
-    color: '#0069ff',
+    color: '#60a5fa',
     fontWeight: '600',
   },
   selectedIndicator: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#0069ff',
+    backgroundColor: '#60a5fa',
   },
 });
 
 const markdownStyles = {
   body: {
-    color: '#394e6a',
+    color: '#fff',
   },
   heading1: {
-    color: '#394e6a',
+    color: '#fff',
     fontSize: 24,
     marginBottom: 16,
+    fontWeight: '700',
   },
   heading2: {
-    color: '#394e6a',
+    color: '#fff',
     fontSize: 20,
     marginBottom: 12,
+    fontWeight: '600',
   },
   paragraph: {
-    color: '#394e6a',
+    color: '#fff',
     fontSize: 16,
     marginBottom: 12,
+    lineHeight: 24,
+  },
+  list: {
+    color: '#fff',
+  },
+  listItem: {
+    color: '#fff',
+  },
+  link: {
+    color: '#60a5fa',
   },
 };

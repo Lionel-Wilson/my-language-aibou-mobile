@@ -14,7 +14,8 @@ import {
 import { X, Search, Copy, Check } from 'lucide-react-native';
 import Markdown from 'react-native-markdown-display';
 import { useLanguage } from '@/hooks/useLanguage';
-import {endpoints} from "@/utils/api";
+import { endpoints } from '@/utils/api';
+import { LinearGradient } from 'expo-linear-gradient';
 import {LANGUAGES} from "@/utils/constants";
 
 
@@ -27,6 +28,12 @@ export default function SentenceCorrection() {
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [copied, setCopied] = useState(false);
+
+  const clearAll = () => {
+    setSentence('');
+    setCorrection('');
+    setError('');
+  };
 
   const filteredLanguages = LANGUAGES.filter((lang) =>
     lang.label.toLowerCase().includes(searchQuery.toLowerCase())
@@ -53,26 +60,27 @@ export default function SentenceCorrection() {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        endpoints.sentenceCorrection,{
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            sentence,
-            nativeLanguage: language,
-          }),
-        }
-      );
+      const response = await fetch(endpoints.sentenceCorrection, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sentence,
+          nativeLanguage: language,
+        }),
+      });
 
       const data = await response.text();
       if (!response.ok) {
         throw new Error(data);
       }
 
-      const formattedCorrection = data.replace(/\\n/g, '\n');
-      setCorrection(formattedCorrection);
+      const cleanedResponse = data
+        .replace(/\\n/g, '\n')
+        .replace(/^"/, '')
+        .replace(/"$/, '');
+      setCorrection(cleanedResponse);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -81,7 +89,17 @@ export default function SentenceCorrection() {
   };
 
   const copyToClipboard = useCallback(async () => {
-    await Clipboard.setString(correction);
+    const cleanContent = correction
+      .replace(/[#*`]/g, '')
+      .replace(/\\"/g, '"')
+      .replace(/\\n/g, '\n')
+      .replace(/\\/g, '')
+      .replace(/^"/, '')
+      .replace(/"$/, '')
+      .replace(/\n+/g, '\n')
+      .trim();
+
+    await Clipboard.setString(cleanContent);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }, [correction]);
@@ -110,14 +128,19 @@ export default function SentenceCorrection() {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0069ff" />
+        <ActivityIndicator size="large" color="#60a5fa" />
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.content}>
+    <ScrollView 
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}>
+      <LinearGradient
+        colors={['#1a1f36', '#2a2f45']}
+        style={styles.content}>
         <Text style={styles.label}>Your Native Language</Text>
         <TouchableOpacity
           style={styles.languageSelector}
@@ -132,7 +155,7 @@ export default function SentenceCorrection() {
             value={sentence}
             onChangeText={setSentence}
             placeholder="Enter a sentence to correct"
-            placeholderTextColor="#8896ab"
+            placeholderTextColor="#94a3b8"
             multiline
             numberOfLines={4}
             maxLength={100}
@@ -140,8 +163,8 @@ export default function SentenceCorrection() {
           {sentence.length > 0 && (
             <TouchableOpacity
               style={styles.clearButton}
-              onPress={() => setSentence('')}>
-              <X size={20} color="#394e6a" />
+              onPress={clearAll}>
+              <X size={20} color="#94a3b8" />
             </TouchableOpacity>
           )}
         </View>
@@ -167,9 +190,9 @@ export default function SentenceCorrection() {
                 style={styles.copyButton}
                 onPress={copyToClipboard}>
                 {copied ? (
-                  <Check size={20} color="#0069ff" />
+                  <Check size={20} color="#60a5fa" />
                 ) : (
-                  <Copy size={20} color="#394e6a" />
+                  <Copy size={20} color="#94a3b8" />
                 )}
               </TouchableOpacity>
             </View>
@@ -186,46 +209,50 @@ export default function SentenceCorrection() {
             setSearchQuery('');
           }}>
           <View style={styles.modalContainer}>
-            <View style={[styles.modalContent, { height: '70%' }]}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Select Language</Text>
-                <TouchableOpacity
-                  onPress={() => {
-                    setShowLanguageModal(false);
-                    setSearchQuery('');
-                  }}
-                  style={styles.closeButton}>
-                  <X size={20} color="#394e6a" />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.searchContainer}>
-                <Search size={20} color="#8896ab" style={styles.searchIcon} />
-                <TextInput
-                  style={styles.searchInput}
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                  placeholder="Search languages"
-                  placeholderTextColor="#8896ab"
-                />
-                {searchQuery.length > 0 && (
+            <View style={styles.modalContent}>
+              <LinearGradient
+                colors={['#1a1f36', '#2a2f45']}
+                style={styles.modalInner}>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>Select Language</Text>
                   <TouchableOpacity
-                    style={styles.clearSearch}
-                    onPress={() => setSearchQuery('')}>
-                    <X size={20} color="#394e6a" />
+                    onPress={() => {
+                      setShowLanguageModal(false);
+                      setSearchQuery('');
+                    }}
+                    style={styles.closeButton}>
+                    <X size={20} color="#94a3b8" />
                   </TouchableOpacity>
-                )}
-              </View>
-              <FlatList
-                data={filteredLanguages}
-                renderItem={renderLanguageItem}
-                keyExtractor={(item) => item.value}
-                style={styles.languageList}
-                keyboardShouldPersistTaps="handled"
-              />
+                </View>
+                <View style={styles.searchContainer}>
+                  <Search size={20} color="#94a3b8" style={styles.searchIcon} />
+                  <TextInput
+                    style={styles.searchInput}
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    placeholder="Search languages"
+                    placeholderTextColor="#94a3b8"
+                  />
+                  {searchQuery.length > 0 && (
+                    <TouchableOpacity
+                      style={styles.clearSearch}
+                      onPress={() => setSearchQuery('')}>
+                      <X size={20} color="#94a3b8" />
+                    </TouchableOpacity>
+                  )}
+                </View>
+                <FlatList
+                  data={filteredLanguages}
+                  renderItem={renderLanguageItem}
+                  keyExtractor={(item) => item.value}
+                  style={styles.languageList}
+                  keyboardShouldPersistTaps="handled"
+                />
+              </LinearGradient>
             </View>
           </View>
         </Modal>
-      </View>
+      </LinearGradient>
     </ScrollView>
   );
 }
@@ -233,57 +260,67 @@ export default function SentenceCorrection() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e3e9f4',
+    backgroundColor: '#1a1f36',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 100, // Add padding for tab bar
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#e3e9f4',
+    backgroundColor: '#1a1f36',
   },
   content: {
+    flex: 1,
     padding: 16,
+    paddingBottom: 32,
   },
   label: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#394e6a',
+    color: '#fff',
     marginBottom: 8,
   },
   languageSelector: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 12,
+    padding: 16,
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   selectedLanguage: {
     fontSize: 16,
-    color: '#394e6a',
+    color: '#fff',
   },
   inputContainer: {
     position: 'relative',
     marginBottom: 16,
   },
   input: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 12,
+    padding: 16,
     paddingRight: 40,
     fontSize: 16,
-    minHeight: 100,
+    color: '#fff',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    minHeight: 120,
     textAlignVertical: 'top',
-    color: '#394e6a',
   },
   clearButton: {
     position: 'absolute',
-    top: 8,
-    right: 8,
+    top: 16,
+    right: 16,
     padding: 4,
   },
   button: {
-    backgroundColor: '#0069ff',
+    backgroundColor: '#60a5fa',
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 12,
     alignItems: 'center',
     marginBottom: 16,
   },
@@ -293,13 +330,15 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   error: {
-    color: '#dc2626',
+    color: '#ef4444',
     marginBottom: 16,
   },
   correctionContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 16,
     padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   correctionHeader: {
     flexDirection: 'row',
@@ -310,7 +349,7 @@ const styles = StyleSheet.create({
   correctionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#394e6a',
+    color: '#fff',
   },
   copyButton: {
     padding: 4,
@@ -321,23 +360,28 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
     height: '70%',
+    backgroundColor: '#1a1f36',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    overflow: 'hidden',
+  },
+  modalInner: {
+    flex: 1,
+    padding: 16,
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '600',
-    color: '#394e6a',
+    color: '#fff',
   },
   closeButton: {
     padding: 4,
@@ -345,10 +389,12 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 8,
-    backgroundColor: '#f3f4f6',
+    padding: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     margin: 16,
-    borderRadius: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   searchIcon: {
     marginRight: 8,
@@ -356,7 +402,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: '#394e6a',
+    color: '#fff',
     padding: 4,
   },
   clearSearch: {
@@ -371,41 +417,57 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 12,
+    marginBottom: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   languageText: {
     fontSize: 16,
-    color: '#394e6a',
+    color: '#fff',
   },
   selectedLanguageText: {
-    color: '#0069ff',
+    color: '#60a5fa',
     fontWeight: '600',
   },
   selectedIndicator: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#0069ff',
+    backgroundColor: '#60a5fa',
   },
 });
 
 const markdownStyles = {
   body: {
-    color: '#394e6a',
+    color: '#fff',
   },
   heading1: {
-    color: '#394e6a',
+    color: '#fff',
     fontSize: 24,
     marginBottom: 16,
+    fontWeight: '700',
   },
   heading2: {
-    color: '#394e6a',
+    color: '#fff',
     fontSize: 20,
     marginBottom: 12,
+    fontWeight: '600',
   },
   paragraph: {
-    color: '#394e6a',
+    color: '#fff',
     fontSize: 16,
     marginBottom: 12,
+    lineHeight: 24,
+  },
+  list: {
+    color: '#fff',
+  },
+  listItem: {
+    color: '#fff',
+  },
+  link: {
+    color: '#60a5fa',
   },
 };
