@@ -372,7 +372,6 @@ export default function WordDictionary() {
                     <ScrollView
                       style={[
                         styles.sectionContent,
-                        { maxHeight: SECTION_HEIGHT },
                       ]}
                       contentContainerStyle={styles.sectionContentContainer}
                       showsVerticalScrollIndicator={true}>
