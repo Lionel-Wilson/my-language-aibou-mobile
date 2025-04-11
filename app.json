@@ -1,24 +1,49 @@
 {
   "expo": {
-    "name": "bolt-expo-nativewind",
-    "slug": "bolt-expo-nativewind",
+    "name": "my-language-aibou",
+    "slug": "my-language-aibou",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "mylanguageaibou",
+    "platforms": ["ios", "android"],
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "bundleIdentifier": "com.lionelwilson.mylanguageaibou",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.lionelwilson.mylanguageaibou",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": {
+            "scheme": "mylanguageaibou",
+            "host": "*",
+            "pathPrefix": "/"
+          },
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "bundler": "metro",
       "output": "single",
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": ["expo-router"],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "73c83f5b-0bc5-487a-8e96-c1b7c8d782f7"
+      }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }

@@ -1,9 +1,21 @@
 import { Tabs } from 'expo-router';
-import { MessageSquareText, Book, CircleCheck } from 'lucide-react-native';
-import { StyleSheet, Platform } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { MessageSquareText, Book, CircleCheck,Settings } from 'lucide-react-native';
+import {  Platform } from 'react-native';
+import { useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function TabLayout() {
+    const { checkSubscriptionStatus } = useAuth();
+
+    // 👇 Add polling inside useEffect
+    useEffect(() => {
+        const interval = setInterval(() => {
+            checkSubscriptionStatus();
+        }, 3600000); // every hour
+
+        return () => clearInterval(interval);
+    }, []);
+
   return (
     <Tabs
       screenOptions={{
@@ -61,6 +73,15 @@ export default function TabLayout() {
           ),
         }}
       />
+        <Tabs.Screen
+            name="settings"
+            options={{
+                title: 'Settings',
+                tabBarIcon: ({ color, size }) => (
+                    <Settings size={size} color={color} />
+                ),
+            }}
+        />
     </Tabs>
   );
 }
