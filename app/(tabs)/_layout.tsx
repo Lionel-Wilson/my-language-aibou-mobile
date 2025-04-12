@@ -47,7 +47,7 @@ export default function TabLayout() {
         },
       }}>
       <Tabs.Screen
-        name="sentence-analyser"
+        name="index"
         options={{
           title: 'Analyse',
           tabBarIcon: ({ color, size }) => (
