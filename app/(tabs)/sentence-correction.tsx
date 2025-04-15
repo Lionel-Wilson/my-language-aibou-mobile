@@ -14,7 +14,7 @@ import {
 import { X, Search, Copy, Check } from 'lucide-react-native';
 import Markdown from 'react-native-markdown-display';
 import { useLanguage } from '@/hooks/useLanguage';
-import { endpoints } from '@/utils/api';
+import {apiRequest, endpoints} from '@/utils/api';
 import { LinearGradient } from 'expo-linear-gradient';
 import {LANGUAGES} from "@/utils/constants";
 
@@ -60,15 +60,13 @@ export default function SentenceCorrection() {
     setLoading(true);
 
     try {
-      const response = await fetch(endpoints.sentenceCorrection, {
+      const response = await apiRequest(endpoints.sentenceCorrection, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           sentence,
           nativeLanguage: language,
         }),
+        requiresAuth: true,
       });
 
       const data = await response.text();

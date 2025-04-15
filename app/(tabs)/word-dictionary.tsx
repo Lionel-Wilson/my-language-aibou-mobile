@@ -15,7 +15,7 @@ import {
 import { X, Search, Copy, Check, ChevronDown } from 'lucide-react-native';
 import Markdown from 'react-native-markdown-display';
 import { useLanguage } from '@/hooks/useLanguage';
-import { endpoints } from '@/utils/api';
+import {apiRequest, endpoints} from '@/utils/api';
 import { LinearGradient } from 'expo-linear-gradient';
 import {LANGUAGES} from "@/utils/constants";
 
@@ -87,36 +87,22 @@ export default function WordDictionary() {
     setLoading(true);
 
     try {
+      const body = JSON.stringify({ word, nativeLanguage: language });
       const [definitionResponse, synonymsResponse, historyResponse] = await Promise.all([
-        fetch(endpoints.wordDefinition, {
+        apiRequest(endpoints.wordDefinition, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            word,
-            nativeLanguage: language,
-          }),
+          body,
+          requiresAuth: true,
         }),
-        fetch(endpoints.wordSynonyms, {
+        apiRequest(endpoints.wordSynonyms, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            word,
-            nativeLanguage: language,
-          }),
+          body,
+          requiresAuth: true,
         }),
-        fetch(endpoints.wordHistory, {
+        apiRequest(endpoints.wordHistory, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            word,
-            nativeLanguage: language,
-          }),
+          body,
+          requiresAuth: true,
         }),
       ]);
 
