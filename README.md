@@ -1,5 +1,43 @@
-# My Language Aibou Mobile App
-Frontend for the 'My Language Aibou' mobile app
+# My Language Aibou Mobile 
+> Created a language studying tool that utilises OpenAi's API.
+
+
+## Table of Contents
+* [General Info](#general-information)
+* [Technologies Used](#technologies-used)
+* [Features](#features)
+* [Screenshots](#screenshots)
+* [How to run](#how-to-run)
+* [Project Status](#project-status)
+* [Acknowledgements](#acknowledgements)
+* [Contact](#contact)
+
+## General Information
+- This is a mobile application that allows users to paste in a sentence in a foreign language they're learning and get an explantion of the grammar and words used in their native language. 
+- I contributed to designing, building, testing and maintaining the app.
+- Originally made this to increase the efficiency of my personal Japanese language study. Rather than contstanly writing out prompts to ask Chat GPT to explaining the meaning of a sentence, I made a wrapper that did this for me.
+
+## Technologies Used
+- React Native
+- Typescript
+- Golang
+- OpenAI APIs
+
+## Features
+- A 'Sentence Analyser' that provides an explanation of the provided sentences meaning. Breaks down the meaning of each word and grammar structure used in the sentence and shows why it means what it means.
+- 'Sentence Correction' that corrects sentences in any language and tells you why it's incorrect in your native language.
+- A Dictionary that defines, provides example sentences, synonyms and the history of the word provided.
+
+
+## Screenshots
+![image](https://github.com/user-attachments/assets/fc790cc6-7328-487a-a839-63873366f43b)
+![image](https://github.com/user-attachments/assets/6ebb025b-9f7c-410d-bda2-9e187edda730)
+![image](https://github.com/user-attachments/assets/a90f9e8d-9fbd-4e97-a926-cfc7a56225d3)
+![image](https://github.com/user-attachments/assets/0b738ae6-b6c5-4d58-9b77-908a2dbe2c8f)
+![image](https://github.com/user-attachments/assets/7c33a5bd-4354-4747-9abb-cc54915acec0)
+![image](https://github.com/user-attachments/assets/6e52f3de-84ac-4d15-a861-c51937b0f27e)
+
+
 
 ## How to run
 
@@ -27,3 +65,12 @@ npm install -g expo-cli
 npx expo start
 ```
 
+## Project Status
+Project is: _In Progress_
+
+## Acknowledgements
+- I would like to thank first and foremost Jesus Christ my Lord and saviour for
+getting me this far and keeping me at peace.
+
+## Contact
+Created by [Lionel Wilson](https://github.com/Lionel-Wilson) - feel free to contact me!
