@@ -1,5 +1,8 @@
 import { Tabs } from 'expo-router';
-import { MessageSquareText, Book, CircleCheck,Settings } from 'lucide-react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import Feather from '@expo/vector-icons/Feather';
+import AntDesign from '@expo/vector-icons/AntDesign';
 import {  Platform } from 'react-native';
 import { useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -51,7 +54,7 @@ export default function TabLayout() {
         options={{
           title: 'Analyse',
           tabBarIcon: ({ color, size }) => (
-            <MessageSquareText size={size} color={color} />
+            <MaterialIcons name="message" size={size} color={color} />
           ),
         }}
       />
@@ -60,7 +63,7 @@ export default function TabLayout() {
         options={{
           title: 'Correction',
           tabBarIcon: ({ color, size }) => (
-            <CircleCheck size={size} color={color} />
+            <AntDesign name="checkcircleo" size={size} color={color} />
           ),
         }}
       />
@@ -69,7 +72,7 @@ export default function TabLayout() {
         options={{
           title: 'Dictionary',
           tabBarIcon: ({ color, size }) => (
-            <Book size={size} color={color} />
+            <FontAwesome6 name="book" size={size} color={color} />
           ),
         }}
       />
@@ -78,7 +81,7 @@ export default function TabLayout() {
             options={{
                 title: 'Settings',
                 tabBarIcon: ({ color, size }) => (
-                    <Settings size={size} color={color} />
+                <Feather name="settings" size={size} color={color} />
                 ),
             }}
         />

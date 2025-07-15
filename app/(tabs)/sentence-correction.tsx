@@ -11,7 +11,7 @@ import {
   FlatList,
   Clipboard,
 } from 'react-native';
-import { X, Search, Copy, Check } from 'lucide-react-native';
+import { Feather } from '@expo/vector-icons';
 import Markdown from 'react-native-markdown-display';
 import { useLanguage } from '@/hooks/useLanguage';
 import {apiRequest, endpoints} from '@/utils/api';
@@ -162,7 +162,7 @@ export default function SentenceCorrection() {
             <TouchableOpacity
               style={styles.clearButton}
               onPress={clearAll}>
-              <X size={20} color="#94a3b8" />
+              <Feather name="x" size={20} color="#94a3b8" />
             </TouchableOpacity>
           )}
         </View>
@@ -188,9 +188,9 @@ export default function SentenceCorrection() {
                 style={styles.copyButton}
                 onPress={copyToClipboard}>
                 {copied ? (
-                  <Check size={20} color="#60a5fa" />
+                    <Feather name="check" size={20} color="#60a5fa" />
                 ) : (
-                  <Copy size={20} color="#94a3b8" />
+                  <Feather name="copy" size={20} color="#94a3b8" />
                 )}
               </TouchableOpacity>
             </View>
@@ -219,11 +219,11 @@ export default function SentenceCorrection() {
                       setSearchQuery('');
                     }}
                     style={styles.closeButton}>
-                    <X size={20} color="#94a3b8" />
+                    <Feather name="x" size={20} color="#94a3b8" />
                   </TouchableOpacity>
                 </View>
                 <View style={styles.searchContainer}>
-                  <Search size={20} color="#94a3b8" style={styles.searchIcon} />
+                  <Feather name="search" size={20} color="#94a3b8" style={styles.searchIcon} />
                   <TextInput
                     style={styles.searchInput}
                     value={searchQuery}
@@ -235,7 +235,7 @@ export default function SentenceCorrection() {
                     <TouchableOpacity
                       style={styles.clearSearch}
                       onPress={() => setSearchQuery('')}>
-                      <X size={20} color="#94a3b8" />
+                      <Feather name="x" size={20} color="#94a3b8" />
                     </TouchableOpacity>
                   )}
                 </View>

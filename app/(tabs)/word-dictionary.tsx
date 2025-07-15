@@ -12,7 +12,7 @@ import {
   Clipboard,
   Dimensions,
 } from 'react-native';
-import { X, Search, Copy, Check, ChevronDown } from 'lucide-react-native';
+import { Feather } from '@expo/vector-icons';
 import Markdown from 'react-native-markdown-display';
 import { useLanguage } from '@/hooks/useLanguage';
 import {apiRequest, endpoints} from '@/utils/api';
@@ -40,8 +40,9 @@ export default function WordDictionary() {
     synonyms: false,
     history: false,
   });
+  type SectionKey = 'definition' | 'synonyms' | 'history';
 
-  const toggleSection = (section) => {
+  const toggleSection = (section:SectionKey) => {
     setCollapsedSections(prev => ({
       ...prev,
       [section]: !prev[section],
@@ -217,7 +218,7 @@ export default function WordDictionary() {
             <TouchableOpacity
               style={styles.clearButton}
               onPress={clearAll}>
-              <X size={20} color="#94a3b8" />
+              <Feather name="x" size={20} color="#94a3b8" />
             </TouchableOpacity>
           )}
         </View>
@@ -248,18 +249,19 @@ export default function WordDictionary() {
                       style={styles.copyButton}
                       onPress={() => copyToClipboard('definition', definition)}>
                       {copiedSection === 'definition' ? (
-                        <Check size={20} color="#60a5fa" />
+                          <Feather name="check" size={20} color="#60a5fa" />
                       ) : (
-                        <Copy size={20} color="#94a3b8" />
+                          <Feather name="copy" size={20} color="#94a3b8" />
                       )}
                     </TouchableOpacity>
-                    <ChevronDown
-                      size={20}
-                      color="#94a3b8"
-                      style={[
-                        styles.chevron,
-                        collapsedSections.definition && styles.chevronCollapsed,
-                      ]}
+                    <Feather
+                        name="chevron-down"
+                        size={20}
+                        color="#94a3b8"
+                        style={[
+                          styles.chevron,
+                          collapsedSections.definition && styles.chevronCollapsed,
+                        ]}
                     />
                   </View>
                 </TouchableOpacity>
@@ -275,7 +277,11 @@ export default function WordDictionary() {
                       <Markdown style={markdownStyles}>{definition}</Markdown>
                     </ScrollView>
                     <View style={styles.scrollIndicator}>
-                      <ChevronDown size={16} color="#94a3b8" />
+                      <Feather
+                          name="chevron-down"
+                          size={16}
+                          color="#94a3b8"
+                      />
                     </View>
                   </View>
                 )}
@@ -293,18 +299,19 @@ export default function WordDictionary() {
                       style={styles.copyButton}
                       onPress={() => copyToClipboard('synonyms', synonyms)}>
                       {copiedSection === 'synonyms' ? (
-                        <Check size={20} color="#60a5fa" />
+                          <Feather name="check" size={20} color="#60a5fa" />
                       ) : (
-                        <Copy size={20} color="#94a3b8" />
+                          <Feather name="copy" size={20} color="#94a3b8" />
                       )}
                     </TouchableOpacity>
-                    <ChevronDown
-                      size={20}
-                      color="#94a3b8"
-                      style={[
-                        styles.chevron,
-                        collapsedSections.synonyms && styles.chevronCollapsed,
-                      ]}
+                    <Feather
+                        name="chevron-down"
+                        size={20}
+                        color="#94a3b8"
+                        style={[
+                          styles.chevron,
+                          collapsedSections.synonyms && styles.chevronCollapsed,
+                        ]}
                     />
                   </View>
                 </TouchableOpacity>
@@ -320,7 +327,11 @@ export default function WordDictionary() {
                       <Markdown style={markdownStyles}>{synonyms}</Markdown>
                     </ScrollView>
                     <View style={styles.scrollIndicator}>
-                      <ChevronDown size={16} color="#94a3b8" />
+                      <Feather
+                          name="chevron-down"
+                          size={16}
+                          color="#94a3b8"
+                      />
                     </View>
                   </View>
                 )}
@@ -338,18 +349,19 @@ export default function WordDictionary() {
                       style={styles.copyButton}
                       onPress={() => copyToClipboard('history', history)}>
                       {copiedSection === 'history' ? (
-                        <Check size={20} color="#60a5fa" />
+                          <Feather name="check" size={20} color="#60a5fa" />
                       ) : (
-                        <Copy size={20} color="#94a3b8" />
+                          <Feather name="copy" size={20} color="#94a3b8" />
                       )}
                     </TouchableOpacity>
-                    <ChevronDown
-                      size={20}
-                      color="#94a3b8"
-                      style={[
-                        styles.chevron,
-                        collapsedSections.history && styles.chevronCollapsed,
-                      ]}
+                    <Feather
+                        name="chevron-down"
+                        size={20}
+                        color="#94a3b8"
+                        style={[
+                          styles.chevron,
+                          collapsedSections.history && styles.chevronCollapsed,
+                        ]}
                     />
                   </View>
                 </TouchableOpacity>
@@ -364,7 +376,11 @@ export default function WordDictionary() {
                       <Markdown style={markdownStyles}>{history}</Markdown>
                     </ScrollView>
                     <View style={styles.scrollIndicator}>
-                      <ChevronDown size={16} color="#94a3b8" />
+                      <Feather
+                          name="chevron-down"
+                          size={16}
+                          color="#94a3b8"
+                      />
                     </View>
                   </View>
                 )}
@@ -394,11 +410,11 @@ export default function WordDictionary() {
                       setSearchQuery('');
                     }}
                     style={styles.closeButton}>
-                    <X size={20} color="#94a3b8" />
+                    <Feather name="x" size={20} color="#94a3b8" />
                   </TouchableOpacity>
                 </View>
                 <View style={styles.searchContainer}>
-                  <Search size={20} color="#94a3b8" style={styles.searchIcon} />
+                  <Feather name="search" size={20} color="#94a3b8" style={styles.searchIcon} />
                   <TextInput
                     style={styles.searchInput}
                     value={searchQuery}
@@ -410,7 +426,7 @@ export default function WordDictionary() {
                     <TouchableOpacity
                       style={styles.clearSearch}
                       onPress={() => setSearchQuery('')}>
-                      <X size={20} color="#94a3b8" />
+                      <Feather name="x" size={20} color="#94a3b8" />
                     </TouchableOpacity>
                   )}
                 </View>
